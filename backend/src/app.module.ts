@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
 import { Category } from './categories/category.entity';
 import { Transaction } from './transactions/transaction.entity';
-import { Budget } from './budgets/budgets.entity';
+import { Budget } from './budgets/budget.entity';
 
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -14,8 +14,13 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { AuthModule } from './auth/auth.module';
 
+import { ConfigModule } from '@nestjs/config';
+
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
