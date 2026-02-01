@@ -10,11 +10,13 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(email: string, pass: string) {
+  async login(email: string, password: string) {
     const user = await this.usersService.findOne(email);
+
+    
     
     // provera ali sa bcrypt
-    if (user && await bcrypt.compare(pass, user.password)) {
+    if (user && await bcrypt.compare(password, user.password)) {
       const payload = { email: user.email, sub: user.id };
 
       return {

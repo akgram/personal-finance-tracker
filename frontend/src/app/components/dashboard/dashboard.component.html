@@ -1,1 +1,61 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <nav class="dash-nav">
+    <div class="logo-container">
+      <img src="logo1.png" alt="App Logo" class="auth-logo">
+    </div>
+    <div class="nav-right">
+      <button (click)="onLogout()" class="btn-logout">Logout</button>
+    </div>
+  </nav>
+
+  <main class="dash-content">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="label">Total Balance</span>
+        <h2 class="value">$4,250.00</h2>
+      </div>
+      <div class="stat-card income">
+        <span class="label">Monthly Income</span>
+        <h2 class="value">+$2,800.00</h2>
+      </div>
+      <div class="stat-card expense">
+        <span class="label">Monthly Expenses</span>
+        <h2 class="value">-$1,150.00</h2>
+      </div>
+    </div>
+
+    <div class="transactions-section">
+      <div class="section-header">
+        <h3>Recent Transactions</h3>
+        <button class="btn-add">+ Add Transaction</button>
+      </div>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Netflix Subscription</td>
+              <td><span class="tag">Entertainment</span></td>
+              <td>Oct 24, 2023</td>
+              <td class="neg">-$15.99</td>
+            </tr>
+            <tr>
+              <td>Salary Deposit</td>
+              <td><span class="tag">Work</span></td>
+              <td>Oct 22, 2023</td>
+              <td class="pos">+$2,500.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
