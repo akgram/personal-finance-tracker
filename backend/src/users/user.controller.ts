@@ -6,7 +6,7 @@ export class UserController {
   constructor(private readonly usersService: UserService) {}
 
   @Post('register')
-  register(@Body('email') email: string, @Body('pass') pass: string) {
-    return this.usersService.create(email, pass);
+  register(@Body() userData: any) {
+    return this.usersService.create(userData);
   }
 }

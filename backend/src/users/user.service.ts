@@ -11,12 +11,14 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async create(email: string, pass: string): Promise<User> {
+  async create(userData: any): Promise<User> {
+    const { email, password } = userData;
+
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(pass, salt);
-    
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const newUser = this.usersRepository.create({
-      email,
+      email: email,
       password: hashedPassword,
     });
     

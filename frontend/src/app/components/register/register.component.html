@@ -1,0 +1,37 @@
+<div class="auth-wrapper">
+  <div class="auth-content">
+    
+    <div class="logo-container">
+      <img src="logo1.png" alt="App Logo" class="auth-logo">
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Create Account</h2>
+        <p>Start tracking your finances today</p>
+      </div>
+
+      <form class="auth-form">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input [(ngModel)]="user.email" name="email" type="email" placeholder="example@mail.com">
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input [(ngModel)]="user.password" name="password" type="password" placeholder="••••••••">
+        </div>
+
+        <button (click)="onRegister()" class="btn-register">
+          Register Now
+        </button>
+
+        <div class="auth-footer">
+          <span>Already have an account?</span>
+          <a routerLink="/login">Sign In</a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
