@@ -1,0 +1,7 @@
+backend: docker exec -it finance-postgres psql -U finance_user -d finance_db
+
+	SELECT * FROM users;
+
+backend: npm run start:dev
+
+frontend: ng serve
