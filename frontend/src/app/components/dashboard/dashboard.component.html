@@ -1,9 +1,10 @@
 <div class="dashboard-container">
   <nav class="dash-nav">
     <div class="logo-container">
-      <img src="logo1.png" alt="App Logo" class="auth-logo">
+    <img src="logo1.png" alt="App Logo" class="auth-logo">
     </div>
     <div class="nav-right">
+      <button (click)="router.navigate(['/categories'])" class="btn-nav-link">Categories</button>
       <button (click)="onLogout()" class="btn-logout">Logout</button>
     </div>
   </nav>

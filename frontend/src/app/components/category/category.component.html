@@ -1,0 +1,109 @@
+<div class="dashboard-container">
+  <nav class="dash-nav">
+    <img src="logo1.png" class="auth-logo" (click)="router.navigate(['/dashboard'])" style="cursor: pointer;">
+    <div class="nav-right">
+      <button class="btn-nav-link" (click)="router.navigate(['/dashboard'])">Back</button>
+      <button class="btn-add" (click)="openCreateModal()">+ Add Category</button>
+    </div>
+  </nav>
+
+  <main class="dash-content">
+    <div class="categories-grid">
+      <div class="category-card" *ngFor="let cat of groupedData" 
+           (click)="selectCategory(cat)"
+           [class.active]="selectedCategory?.id === cat.id">
+        
+        <div class="card-header">
+          <span class="icon">{{ cat.icon || '📁' }}</span>
+          <div class="actions">
+            <button class="btn-assign-small" (click)="openTransactionPicker(cat, $event)">+ Assign</button>
+            <button class="btn-edit-small" (click)="openEditModal(cat, $event)">Edit</button>
+            <button class="btn-del-small" (click)="deleteCategory(cat.id, $event)">Delete</button>
+          </div>
+        </div>
+        
+        <h3>{{ cat.name }}</h3>
+        <p class="total-amount">Total: <span>{{ cat.total | currency:'USD' }}</span></p>
+        <small class="trans-count">{{ cat.transactions.length }} transactions</small>
+      </div>
+    </div>
+
+    <div class="detail-section" *ngIf="selectedCategory">
+      <div class="detail-header">
+        <h2>Transactions in: {{ selectedCategory.name }}</h2>
+        <button class="btn-close" (click)="selectedCategory = null">×</button>
+      </div>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of selectedCategory.transactions">
+              <td>{{ t.description }}</td>
+              <td>{{ t.createdAt | date:'mediumDate' }}</td>
+              <td [class]="t.type === 'income' ? 'pos' : 'neg'">
+                {{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:'USD' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="no-data-msg" *ngIf="selectedCategory.transactions.length === 0">No transactions in this category.</p>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" *ngIf="isCreateModalOpen || editingCategory">
+  <div class="modal-card">
+    <h3>{{ editingCategory ? 'Edit' : 'New' }} Category</h3>
+    
+    <div class="form-group">
+      <label>Category Name</label>
+      <input type="text" [(ngModel)]="categoryForm.name" placeholder="e.g. Food" class="dark-input">
+    </div>
+
+    <div class="form-group">
+      <label>Icon (Emoji)</label>
+      <input type="text" [(ngModel)]="categoryForm.icon" placeholder="🍔" class="dark-input">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="isCreateModalOpen = false; editingCategory = null">Cancel</button>
+      <button class="btn-save" (click)="editingCategory ? updateCategory() : createCategory()">
+        {{ editingCategory ? 'Save Changes' : 'Create' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="isTransactionPickerOpen">
+  <div class="modal-card wide-modal">
+    <h3>Assign to {{ editingCategory?.name }}</h3>
+    <p style="color: #94a3b8; font-size: 0.9rem;">Select transactions to add to this category:</p>
+    
+    <div class="transaction-list-picker">
+      <div *ngFor="let t of allTransactions" 
+           class="picker-item" 
+           (click)="toggleTransactionSelection(t.id)"
+           [class.selected]="selectedTransactionIds.includes(t.id)">
+        <input type="checkbox" [checked]="selectedTransactionIds.includes(t.id)">
+        <span class="desc">{{ t.description }}</span>
+        <span class="amt" [class]="t.type">{{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:'USD' }}</span>
+        <small class="current-cat">{{ t.category?.name || 'No Category' }}</small>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="isTransactionPickerOpen = false">Cancel</button>
+      <button class="btn-save" (click)="assignTransactions()" [disabled]="selectedTransactionIds.length === 0">
+        Confirm ({{ selectedTransactionIds.length }})
+      </button>
+    </div>
+  </div>
+</div>

@@ -15,7 +15,6 @@ export class TransactionService {
       })
     };
   }
-  // salje se token kroz header
 
   getTransactions(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl, this.getHeaders());
@@ -35,5 +34,13 @@ export class TransactionService {
 
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, this.getHeaders());
+  }
+
+  assignToCategory(transactionIds: number[], categoryId: number): Observable<any> {
+    return this.http.patch(
+        `${this.apiUrl}/assign-category`, 
+        { transactionIds, categoryId }, 
+        this.getHeaders()
+    );
   }
 }

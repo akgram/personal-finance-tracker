@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Transaction } from './transaction.entity';
 
 @Injectable()
@@ -84,4 +84,11 @@ export class TransactionsService {
 
         return await this.repo.remove(transaction);
     }
+
+    async assignToCategory(transactionIds: number[], categoryId: number, userId: number) {
+    return await this.repo.update(
+        { id: In(transactionIds), user: { id: userId } },
+        { category: { id: categoryId } }
+    );
+}
 }

@@ -21,7 +21,16 @@ export class TransactionsController {
     getStats(@Req() req: any) {
     return this.transactionsService.getStats(req.user.id);
     }
-
+    
+    @Patch('assign-category')
+    assignToCategory(@Body() body: { transactionIds: number[]; categoryId: number }, @Req() req) {
+        return this.transactionsService.assignToCategory(
+            body.transactionIds, 
+            body.categoryId, 
+            req.user.id
+        );
+    }
+    
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateDto: any, @Req() req: any) {
     return this.transactionsService.update(+id, updateDto, req.user.id); // +id string->number
@@ -31,4 +40,5 @@ export class TransactionsController {
     remove(@Param('id') id: string, @Req() req: any) {
     return this.transactionsService.remove(+id, req.user.id);
     }
+
 }
