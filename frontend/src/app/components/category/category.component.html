@@ -9,7 +9,7 @@
 
   <main class="dash-content">
     <div class="categories-grid">
-      <div class="category-card" *ngFor="let cat of groupedData" 
+      <div class="category-card" *ngFor="let cat of (groupedData$ | async)" 
            (click)="selectCategory(cat)"
            [class.active]="selectedCategory?.id === cat.id">
         
@@ -24,7 +24,7 @@
         
         <h3>{{ cat.name }}</h3>
         <p class="total-amount">Total: <span>{{ cat.total | currency:'USD' }}</span></p>
-        <small class="trans-count">{{ cat.transactions.length }} transactions</small>
+        <small class="trans-count">{{ cat.transactions?.length || 0 }} transactions</small>
       </div>
     </div>
 
@@ -54,14 +54,14 @@
           </tbody>
         </table>
       </div>
-      <p class="no-data-msg" *ngIf="selectedCategory.transactions.length === 0">No transactions in this category.</p>
+      <p class="no-data-msg" *ngIf="selectedCategory.transactions?.length === 0">No transactions in this category.</p>
     </div>
   </main>
 </div>
 
-<div class="modal-overlay" *ngIf="isCreateModalOpen || editingCategory">
+<div class="modal-overlay" *ngIf="isCreateModalOpen">
   <div class="modal-card">
-    <h3>{{ editingCategory ? 'Edit' : 'New' }} Category</h3>
+    <h3>{{ categoryToEdit ? 'Edit' : 'New' }} Category</h3>
     
     <div class="form-group">
       <label>Category Name</label>
@@ -74,36 +74,31 @@
     </div>
 
     <div class="modal-actions">
-      <button class="btn-cancel" (click)="isCreateModalOpen = false; editingCategory = null">Cancel</button>
-      <button class="btn-save" (click)="editingCategory ? updateCategory() : createCategory()">
-        {{ editingCategory ? 'Save Changes' : 'Create' }}
+      <button class="btn-cancel" (click)="isCreateModalOpen = false">Cancel</button>
+      <button class="btn-save" (click)="saveCategory()">
+        {{ categoryToEdit ? 'Save Changes' : 'Create' }}
       </button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="isTransactionPickerOpen">
-  <div class="modal-card wide-modal">
-    <h3>Assign to {{ editingCategory?.name }}</h3>
-    <p style="color: #94a3b8; font-size: 0.9rem;">Select transactions to add to this category:</p>
+<div class="modal-overlay" *ngIf="categoryToDeleteId">
+  <div class="modal-card delete-confirm">
+    <h3>Are you sure?</h3>
+    <p>Do you really want to delete this transaction? This action cannot be undone.</p>
     
-    <div class="transaction-list-picker">
-      <div *ngFor="let t of allTransactions" 
-           class="picker-item" 
-           (click)="toggleTransactionSelection(t.id)"
-           [class.selected]="selectedTransactionIds.includes(t.id)">
-        <input type="checkbox" [checked]="selectedTransactionIds.includes(t.id)">
-        <span class="desc">{{ t.description }}</span>
-        <span class="amt" [class]="t.type">{{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:'USD' }}</span>
-        <small class="current-cat">{{ t.category?.name || 'No Category' }}</small>
-      </div>
-    </div>
-
     <div class="modal-actions">
-      <button class="btn-cancel" (click)="isTransactionPickerOpen = false">Cancel</button>
-      <button class="btn-save" (click)="assignTransactions()" [disabled]="selectedTransactionIds.length === 0">
-        Confirm ({{ selectedTransactionIds.length }})
-      </button>
+      <button class="btn-cancel" (click)="categoryToDeleteId = null">Cancel</button>
+      <button class="btn-save btn-danger" (click)="deleteCategory()">Delete Now</button>
     </div>
   </div>
 </div>
+
+
+<app-transaction-picker 
+  *ngIf="isTransactionPickerOpen"
+  [transactions]="(allTransactions$ | async) || []"
+  [categoryName]="targetCategory?.name"
+  (onAssign)="onTransactionsSelected($event)" 
+  (onCancel)="isTransactionPickerOpen = false">
+</app-transaction-picker>

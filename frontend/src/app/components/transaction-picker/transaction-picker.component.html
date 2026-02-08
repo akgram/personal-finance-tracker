@@ -1,0 +1,48 @@
+<div class="modal-overlay" (click)="onCancel.emit()">
+  <div class="modal-card wide-modal" (click)="$event.stopPropagation()">
+    
+    <div class="picker-header">
+      <h3>Assign Transactions</h3>
+      <p>Select transactions to link with this category</p>
+    </div>
+
+    <div class="transaction-list-picker">
+      <div *ngFor="let t of transactions" 
+           class="picker-item" 
+           (click)="toggleSelection(t.id)"
+           [class.selected]="selectedIds.includes(t.id)">
+        
+        <div class="checkbox-wrapper">
+          <input type="checkbox" [checked]="selectedIds.includes(t.id)" (click)="$event.stopPropagation(); toggleSelection(t.id)">
+        </div>
+
+        <div class="trans-main">
+          <span class="desc">{{ t.description }}</span>
+          <small class="date">{{ t.createdAt | date:'shortDate' }}</small>
+        </div>
+
+        <div class="trans-status">
+          <span class="amt" [class.pos]="t.type === 'income'" [class.neg]="t.type === 'expense'">
+            {{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:'USD' }}
+          </span>
+          <span class="current-cat" *ngIf="t.category">
+            Currently in: <strong>{{ t.category.name }}</strong>
+          </span>
+        </div>
+      </div>
+
+      <div class="no-data" *ngIf="transactions.length === 0">
+        No transactions found to assign.
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="onCancel.emit()">Cancel</button>
+      <button class="btn-save" 
+              [disabled]="selectedIds.length === 0" 
+              (click)="onAssign.emit(selectedIds)">
+        Confirm Selection ({{ selectedIds.length }})
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,132 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-card.wide-modal {
+  max-width: 650px;
+  width: 95%;
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
+}
+
+.picker-header {
+  margin-bottom: 20px;
+}
+
+.picker-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #f8fafc;
+}
+
+.picker-header p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.transaction-list-picker {
+  max-height: 450px;
+  overflow-y: auto;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0f172a;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 16px;
+  border-bottom: 1px solid #1e293b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.picker-item:hover {
+  background: #1e293b;
+}
+
+.picker-item.selected {
+  background: rgba(79, 70, 229, 0.15);
+  border-left: 4px solid #4f46e5;
+}
+
+.trans-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.trans-main .desc {
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.trans-main .date {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.trans-status {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.amt { font-weight: 700; }
+.pos { color: #10b981; }
+.neg { color: #ef4444; }
+
+.current-cat {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.current-cat strong { color: #94a3b8; }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.btn-cancel { background: #334155; color: white; }
+.btn-cancel:hover { background: #475569; }
+
+.btn-save { background: #4f46e5; color: white; }
+.btn-save:hover:not(:disabled) { background: #4338ca; }
+.btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+/* Custom scrollbar */
+.transaction-list-picker::-webkit-scrollbar { width: 6px; }
+.transaction-list-picker::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
