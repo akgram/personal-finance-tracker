@@ -235,3 +235,73 @@ td { padding: 1rem; border-bottom: 1px solid #334155; }
   background: #4f46e5;
   color: white;
 }
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* na mobilnom */
+@media (max-width: 900px) {
+  .overview-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-content {
+  padding: 40px 20px;
+}
+
+.overview-section {
+  grid-template-columns: 1fr 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 400px;
+  width: 100%;
+  max-width: 500px;
+  background: #1e1e1e;
+  padding: 25px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.chart-wrapper h4 {
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.no-data {
+  color: #888;
+  margin-top: 50px;
+  font-style: italic;
+}

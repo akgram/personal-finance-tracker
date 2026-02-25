@@ -10,18 +10,29 @@
   </nav>
 
   <main class="dash-content">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="label">Total Balance</span>
-        <h2 class="value">{{ financialStats.totalBalance | currency:'USD' }}</h2>
+    <div class="overview-section">
+      <div class="stats-cards">
+        <div class="stat-card">
+          <span class="label">Total Balance</span>
+          <h2 class="value">{{ financialStats.totalBalance | currency:'USD' }}</h2>
+        </div>
+        <div class="stat-card income">
+          <span class="label">Monthly Income</span>
+          <h2 class="value">+{{ financialStats.income | currency:'USD' }}</h2>
+        </div>
+        <div class="stat-card expense">
+          <span class="label">Monthly Expenses</span>
+          <h2 class="value">-{{ financialStats.expense | currency:'USD' }}</h2>
+        </div>
       </div>
-      <div class="stat-card income">
-        <span class="label">Monthly Income</span>
-        <h2 class="value">+{{ financialStats.income | currency:'USD' }}</h2>
-      </div>
-      <div class="stat-card expense">
-        <span class="label">Monthly Expenses</span>
-        <h2 class="value">-{{ financialStats.expense | currency:'USD' }}</h2>
+
+      <div class="chart-wrapper">
+        <h4>Structure of Wealth</h4>
+        <canvas #myChart></canvas>
+        
+        <p *ngIf="financialStats.income === 0 && financialStats.expense === 0" class="no-data">
+          No data available for the chart.
+        </p>
       </div>
     </div>
 
