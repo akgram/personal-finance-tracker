@@ -1,0 +1,121 @@
+<div class="transactions-container">
+  <header class="page-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">← Back to Dashboard</button>
+      <h1>Transaction History</h1>
+    </div>
+    <button class="btn-add" (click)="isCreateModalOpen = true">+ New Transaction</button>
+  </header>
+
+  <div class="table-wrapper">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of allTransactionsList">
+          <td>{{ item.description }}</td>
+          <td><span class="category-tag">{{ item.category?.name || 'General' }}</span></td>
+          <td>{{ item.createdAt | date:'MMM d, y' }}</td>
+          <td [class]="item.type === 'income' ? 'amount-pos' : 'amount-neg'">
+            {{ item.type === 'income' ? '+' : '-' }}{{ item.amount | currency:'USD' }}
+          </td>
+          <td class="actions">
+            <button (click)="prepareEditData(item)" class="btn-edit">Edit</button>
+            <button (click)="openDeleteModal(item.id)" class="btn-delete">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" *ngIf="isCreateModalOpen">
+    <div class="modal-card">
+      <h3>Add Transaction</h3>
+      
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" [(ngModel)]="newTransactionData.description" class="dark-input" placeholder="e.g. Salary">
+      </div>
+
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" [(ngModel)]="newTransactionData.amount" class="dark-input">
+      </div>
+
+      <div class="form-group">
+        <label>Type</label>
+        <select [(ngModel)]="newTransactionData.type" class="dark-input">
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select [(ngModel)]="newTransactionData.categoryId" class="dark-input">
+          <option [value]="null">Select Category</option>
+          <option *ngFor="let cat of allCategoriesList" [value]="cat.id">{{cat.name}}</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-link" (click)="isCreateModalOpen = false">Cancel</button>
+        <button class="btn-save" (click)="createTransaction()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="editingTransactionData">
+    <div class="modal-card">
+      <h3>Edit Transaction</h3>
+      
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" [(ngModel)]="editingTransactionData.description" class="dark-input">
+      </div>
+
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" [(ngModel)]="editingTransactionData.amount" class="dark-input">
+      </div>
+
+      <div class="form-group">
+        <label>Type</label>
+        <select [(ngModel)]="editingTransactionData.type" class="dark-input">
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select [(ngModel)]="editingTransactionData.categoryId" class="dark-input">
+          <option *ngFor="let cat of allCategoriesList" [value]="cat.id">{{cat.name}}</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-link" (click)="editingTransactionData = null">Cancel</button>
+        <button class="btn-save" (click)="updateTransaction()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="transactionToDeleteId">
+    <div class="modal-card delete-box">
+      <h3>Confirm Delete</h3>
+      <p>Are you sure you want to remove this transaction?</p>
+      <div class="modal-actions">
+        <button class="btn-link" (click)="transactionToDeleteId = null">Cancel</button>
+        <button class="btn-danger" (click)="deleteTransaction()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

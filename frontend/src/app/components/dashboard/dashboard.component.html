@@ -1,9 +1,10 @@
 <div class="dashboard-container">
   <nav class="dash-nav">
     <div class="logo-container">
-    <img src="logo1.png" alt="App Logo" class="auth-logo">
+      <img src="logo1.png" alt="App Logo" class="auth-logo">
     </div>
     <div class="nav-right">
+      <button (click)="router.navigate(['/transactions'])" class="btn-nav-link">Transactions</button>
       <button (click)="router.navigate(['/categories'])" class="btn-nav-link">Categories</button>
       <button (click)="onLogout()" class="btn-logout">Logout</button>
     </div>
@@ -36,109 +37,13 @@
       </div>
     </div>
 
-    <div class="transactions-section">
-      <div class="section-header">
-        <h3>Recent Transactions</h3>
-        <button class="btn-add" (click)="openCreateForm()">+ Add Transaction</button>
-      </div>
-
-      <div class="modal-overlay" *ngIf="isCreateModalOpen">
-        <div class="modal-card">
-          <h3>New Transaction</h3>
-          
-          <div class="form-group">
-            <label>Description</label>
-            <input type="text" [(ngModel)]="newTransactionData.description" class="dark-input" placeholder="e.g. Rent">
-          </div>
-
-          <div class="form-group">
-            <label>Amount ($)</label>
-            <input type="number" [(ngModel)]="newTransactionData.amount" class="dark-input">
-          </div>
-
-          <div class="form-group">
-            <label>Type</label>
-            <select [(ngModel)]="newTransactionData.type" class="dark-input">
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
-          </div>
-
-          <div class="modal-actions">
-            <button class="btn-cancel" (click)="isCreateModalOpen = false">Cancel</button>
-            <button class="btn-save" (click)="createTransaction()">Create</button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Category</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of allTransactionsList">
-              <td>{{ item.description }}</td>
-              <td><span class="tag">{{ item.category?.name || 'General' }}</span></td>
-              <td>{{ item.createdAt | date:'MMM d, y' }}</td>
-              <td [class]="item.type === 'income' ? 'pos' : 'neg'">
-                {{ item.type === 'income' ? '+' : '-' }}{{ item.amount | currency:'USD' }}
-              </td>
-              <td class="actions-cell">
-                <button (click)="prepareEditData(item)" class="btn-edit-table">Edit</button>
-                <button (click)="openDeleteModal(item.id)" class="btn-delete-table">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="budget-summary-container">
+       <app-budget-card
+         [budget]="globalBudgetData" 
+         [allCategories]="allCategoriesList"
+         [isGlobal]="true"
+         (onRefresh)="fetchStatsData()">
+       </app-budget-card>
     </div>
   </main>
-
-  <div class="modal-overlay" *ngIf="transactionToDeleteId">
-    <div class="modal-card delete-confirm">
-      <h3>Are you sure?</h3>
-      <p>Do you really want to delete this transaction? This action cannot be undone.</p>
-      
-      <div class="modal-actions">
-        <button class="btn-cancel" (click)="transactionToDeleteId = null">Cancel</button>
-        <button class="btn-save btn-danger" (click)="deleteTransaction()">Delete Now</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" *ngIf="editingTransactionData">
-    <div class="modal-card">
-      <h3>Edit Transaction</h3>
-      
-      <div class="form-group">
-        <label>Description</label>
-        <input type="text" [(ngModel)]="editingTransactionData.description" class="dark-input">
-      </div>
-
-      <div class="form-group">
-        <label>Amount ($)</label>
-        <input type="number" [(ngModel)]="editingTransactionData.amount" class="dark-input">
-      </div>
-
-      <div class="form-group">
-        <label>Type</label>
-        <select [(ngModel)]="editingTransactionData.type" class="dark-input">
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-cancel" (click)="editingTransactionData = null">Cancel</button>
-        <button class="btn-save" (click)="updateTransaction()">Save Changes</button>
-      </div>
-    </div>
-  </div>
 </div>

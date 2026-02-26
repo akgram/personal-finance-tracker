@@ -1,0 +1,82 @@
+<div class="card-container" [class.danger]="percent >= 100">
+  
+  <ng-container *ngIf="budget && budget.amount > 0; else noBudget">
+    <div class="card-header">
+      <div class="title-group">
+        <span class="title">{{ isGlobal ? 'Total Monthly Budget' : (budget.category?.name || 'Category') }}</span>
+        <span class="badge" [style.background-color]="getColor()">{{ percent | number:'1.0-0' }}%</span>
+      </div>
+      <button class="btn-icon-edit" (click)="isBudgetModalOpen = true" title="Edit Budget">✎</button>
+    </div>
+
+    <div class="values-group">
+      <span class="spent">{{ spent | currency:'USD' }}</span>
+      <span class="divider">/</span>
+      <span class="total">{{ budget.amount | currency:'USD' }}</span>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" 
+           [style.width.%]="percent > 100 ? 100 : percent"
+           [style.background-color]="getColor()"
+           [class.pulse]="percent > 90">
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <span *ngIf="percent <= 100">Remaining: <strong>{{ (budget.amount - spent) | currency }}</strong></span>
+      <span *ngIf="percent > 100" class="error-msg">Over budget by: <strong>{{ (spent - budget.amount) | currency }}</strong>!</span>
+    </div>
+  </ng-container>
+
+  <ng-template #noBudget>
+  <div class="empty-budget-state">
+    <p>No budget set for this period.</p>
+    <button type="button" class="btn-create-inline" (click)="isBudgetModalOpen = true">
+      <span class="plus">+</span> 
+      <span>Set Budget</span>
+    </button>
+  </div>
+</ng-template>
+</div>
+
+<div class="modal-overlay" *ngIf="isBudgetModalOpen">
+  <div class="modal-card budget-modal">
+    <div class="modal-header">
+      <h3>Set Monthly Budget</h3>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Category</label>
+        <select [(ngModel)]="newBudgetData.categoryId" class="dark-input">
+          <option value="" disabled selected>Select category</option>
+          <option *ngFor="let cat of allCategories" [value]="cat.id">
+            {{ cat.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Limit Amount ($)</label>
+        <input type="number" [(ngModel)]="newBudgetData.amount" class="dark-input" placeholder="e.g. 500">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Month (1-12)</label>
+          <input type="number" [(ngModel)]="newBudgetData.month" class="dark-input" min="1" max="12">
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" [(ngModel)]="newBudgetData.year" class="dark-input">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="isBudgetModalOpen = false">Cancel</button>
+      <button class="btn-save" (click)="createBudget()">Save Budget</button>
+    </div>
+  </div>
+</div>

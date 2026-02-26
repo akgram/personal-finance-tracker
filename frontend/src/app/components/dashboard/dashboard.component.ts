@@ -6,14 +6,16 @@ import { TransactionService } from '../../services/transaction.service';
 import { CategoryService } from '../../services/category.service';
 import { BudgetService } from '../../services/budget.service';
 import { FormsModule } from '@angular/forms';
-
+import { BudgetCardComponent } from '../budget-card/budget-card.component';
+import { zip, map, take } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
+
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BudgetCardComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -30,50 +32,79 @@ export class DashboardComponent implements OnInit {
     private budgetService: BudgetService
   ) {}
 
-  allTransactionsList: any[] = [];
   allCategoriesList: any[] = [];
-  allBudgetsList: any[] = [];
   financialStats: any = { totalBalance: 0, income: 0, expense: 0 };
+  globalBudgetData: any = { amount: 0 };
   
-  editingTransactionData: any = null;
-  transactionToDeleteId: number | null = null;
   newTransactionData: any = { amount: 0, description: '', type: 'expense', categoryId: null };
   newCategoryData: any = { name: '', icon: '' };
-  newBudgetData: any = { amount: 0, month: 1, year: 2024, categoryId: null };
 
   isCreateModalOpen: boolean = false;
   isCategoryModalOpen: boolean = false;
-  isBudgetModalOpen: boolean = false;
 
   ngOnInit() {
-    this.loadAllDashboardData();
+    this.loadDashboardOverview();
   }
 
-  loadAllDashboardData() {
-    this.fetchTransactionsData();
+  loadDashboardOverview() {
     this.fetchStatsData();
     this.fetchCategoriesData();
-    this.fetchBudgetsData();
   }
 
   fetchStatsData() {
-    this.transactionService.getStats().subscribe({
-      next: (res) => {
-        this.financialStats = res;
+    zip(
+      this.transactionService.getStats(),
+      this.budgetService.getBudgets(),
+      this.transactionService.getTransactions()
+    ).pipe(
+      take(1),
+      map(([stats, budgets, transactions]) => {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
-        this.initChart(); // graf
-      },
-      error: (err) => console.error('Greška pri statsima', err)
+        // ukupan budzet za tekuci mesec
+        const totalPlanned = budgets
+          .filter(b => b.month === (currentMonth + 1) && b.year === currentYear)
+          .reduce((sum, b) => sum + Number(b.amount), 0);
+
+        // potrosnja iz transakcija za tekuci mesec
+        const monthlySpent = transactions
+          .filter(t => {
+            const tDate = new Date(t.createdAt);
+            return t.type === 'expense' && 
+                  tDate.getMonth() === currentMonth && 
+                  tDate.getFullYear() === currentYear;
+          })
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+
+        const remainingBudget = totalPlanned - monthlySpent;
+
+        return { stats, totalPlanned, monthlySpent, remainingBudget, transactions };
+      })
+    ).subscribe(({ stats, totalPlanned, monthlySpent, remainingBudget, transactions }) => {
+      this.financialStats = stats;
+      
+      this.globalBudgetData = { 
+        amount: totalPlanned, 
+        spent: monthlySpent, 
+        remaining: remainingBudget 
+      };
+
+      this.initChart();
     });
   }
 
   initChart() {
-    if (!this.chartCanvas || (this.financialStats.income === 0 && this.financialStats.expense === 0)) return;
-    if (this.chart) {
-      this.chart.destroy();
+    if (!this.chartCanvas) return;
+    if (this.financialStats.income === 0 && this.financialStats.expense === 0) {
+       if (this.chart) this.chart.destroy();
+       return;
     }
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    if (this.chart) this.chart.destroy();
+
     this.chart = new Chart(ctx, {
       type: 'pie',
       data: {
@@ -87,29 +118,23 @@ export class DashboardComponent implements OnInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: { bottom: 20 }
+        },
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { color: '#fff' }
+            labels: { color: '#fff', padding: 20 }
           }
         }
       }
     });
   }
 
-  onLogout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
-  openCreateForm() { this.isCreateModalOpen = true; }
-  openCategoryForm() { this.isCategoryModalOpen = true; }
-  openBudgetForm() { this.isBudgetModalOpen = true; }
-
   createTransaction() {
     this.transactionService.create(this.newTransactionData).subscribe({
       next: () => {
-        this.loadAllDashboardData();
+        this.fetchStatsData();
         this.isCreateModalOpen = false;
         this.newTransactionData = { amount: 0, description: '', type: 'expense', categoryId: null };
       },
@@ -117,47 +142,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  prepareEditData(item: any) {
-    this.editingTransactionData = { ...item };
-    if (item.category) this.editingTransactionData.categoryId = item.category.id;
-  }
-
-  updateTransaction() {
-    if (!this.editingTransactionData) return;
-    this.transactionService.update(this.editingTransactionData.id, this.editingTransactionData).subscribe({
-      next: () => {
-        this.loadAllDashboardData();
-        this.editingTransactionData = null;
-      },
-      error: (err) => console.error(err)
-    });
-  }
-
-  fetchTransactionsData() {
-    this.transactionService.getTransactions().subscribe({
-      next: (res) => this.allTransactionsList = res,
-      error: (err) => console.error(err)
-    });
-  }
-
-  openDeleteModal(id: number) { this.transactionToDeleteId = id; }
-
-  deleteTransaction() {
-    if (this.transactionToDeleteId) {
-      this.transactionService.delete(this.transactionToDeleteId).subscribe({
-        next: () => {
-          this.loadAllDashboardData();
-          this.transactionToDeleteId = null;
-        },
-        error: (err) => console.error(err)
-      });
-    }
-  }
-
   createCategory() {
     this.categoryService.create(this.newCategoryData).subscribe({
       next: () => {
-        this.loadAllDashboardData();
+        this.fetchCategoriesData();
         this.isCategoryModalOpen = false;
         this.newCategoryData = { name: '', icon: '' };
       },
@@ -172,21 +160,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  createBudget() {
-    this.budgetService.create(this.newBudgetData).subscribe({
-      next: () => {
-        this.loadAllDashboardData();
-        this.isBudgetModalOpen = false;
-        this.newBudgetData = { amount: 0, month: 1, year: 2024, categoryId: null };
-      },
-      error: (err) => console.error(err)
-    });
+  onLogout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
-  fetchBudgetsData() {
-    this.budgetService.getBudgets().subscribe({
-      next: (res) => this.allBudgetsList = res,
-      error: (err) => console.error(err)
-    });
-  }
+  openCreateForm() { this.isCreateModalOpen = true; }
+  openCategoryForm() { this.isCategoryModalOpen = true; }
 }
