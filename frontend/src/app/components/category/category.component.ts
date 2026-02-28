@@ -21,11 +21,29 @@ export class CategoryComponent {
 
 
   groupedData$ = this.store.select((state: any) => state.category).pipe(
-    map(({ categories, transactions }) => categories.map((cat: any) => {
+    map(({ categories, transactions, budgets }) => categories.map((cat: any) => {
       const catTransactions = transactions.filter((t: any) => t.category?.id === cat.id);
+      
       const total = catTransactions.reduce((sum: number, t: any) => 
         t.type === 'income' ? sum + Number(t.amount) : sum - Number(t.amount), 0);
-      return { ...cat, transactions: catTransactions, total };
+
+      const spent = catTransactions
+        .filter((t: any) => t.type === 'expense')
+        .reduce((sum: number, t: any) => sum + Number(t.amount), 0);
+
+      const foundBudget = (budgets || []).find((b: any) => b.category?.id === cat.id);
+      const budgetLimit = foundBudget ? Number(foundBudget.amount) : 0;
+      
+      const percent = budgetLimit > 0 ? (spent / budgetLimit) * 100 : 0;
+
+      return { 
+        ...cat, 
+        transactions: catTransactions, 
+        total,
+        totalSpent: spent, 
+        budgetLimit, 
+        percent 
+      };
     }))
   );
 
@@ -41,6 +59,16 @@ export class CategoryComponent {
 
   ngOnInit() {
     this.store.dispatch(CategoryActions.loadCategories());
+
+    this.groupedData$.subscribe(categories => {
+    if (this.selectedCategory) {
+
+      // nalazimo istu kategoriju samo refresh
+      const freshCat = categories.find((c: any) => c.id === this.selectedCategory.id);
+      if (freshCat) {
+        this.selectedCategory = freshCat;
+      }
+    }});
   }
 
   openCreateModal() {
@@ -97,8 +125,7 @@ export class CategoryComponent {
     if (this.targetCategory) {
       this.store.dispatch(CategoryActions.assignTransactions({ 
         ids, 
-        catId: this.targetCategory.id 
-      }));
+        catId: this.targetCategory.id }));
       this.isTransactionPickerOpen = false;
     }
   }

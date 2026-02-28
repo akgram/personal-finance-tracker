@@ -23,6 +23,29 @@
         </div>
         
         <h3>{{ cat.name }}</h3>
+
+        <div class="budget-container" *ngIf="cat.budgetLimit > 0">
+          <div class="budget-labels">
+            <span>{{ cat.totalSpent | currency:'USD' }}</span>
+            <span class="limit-label">Limit: {{ cat.budgetLimit | currency:'USD' }}</span>
+          </div>
+          
+          <div class="progress-track">
+            <div class="progress-fill" 
+                 [style.width.%]="cat.percent > 100 ? 100 : cat.percent"
+                 [class.over-budget]="cat.percent > 100">
+            </div>
+          </div>
+
+          <div class="budget-footer">
+            <small [class.danger]="cat.percent > 100">{{ cat.percent | number:'1.0-0' }}% used</small>
+            <small class="remaining" *ngIf="cat.budgetLimit > cat.totalSpent">
+              Left: {{ (cat.budgetLimit - cat.totalSpent) | currency:'USD' }}
+            </small>
+          </div>
+        </div>
+
+
         <p class="total-amount">Total: <span>{{ cat.total | currency:'USD' }}</span></p>
         <small class="trans-count">{{ cat.transactions?.length || 0 }} transactions</small>
       </div>
@@ -31,7 +54,7 @@
     <div class="detail-section" *ngIf="selectedCategory">
       <div class="detail-header">
         <h2>Transactions in: {{ selectedCategory.name }}</h2>
-        <button class="btn-close" (click)="selectedCategory = null">×</button>
+        <button class="btn-close" (click)="selectedCategory = null"></button>
       </div>
       
       <div class="table-container">

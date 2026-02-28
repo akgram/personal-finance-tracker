@@ -1,7 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 
 export const loadCategories = createAction('[Category] Load All');
-export const loadCategoriesSuccess = createAction('[Category] Load Success', props<{ categories: any[], transactions: any[] }>());
+export const loadCategoriesSuccess = createAction('[Category] Load Success', props<{ categories: any[], transactions: any[], budgets: any[] }>());
 export const loadCategoriesFailure = createAction('[Category] Load Failure', props<{ error: any }>());
 export const deleteCategory = createAction('[Category] Delete', props<{ id: number }>());
 

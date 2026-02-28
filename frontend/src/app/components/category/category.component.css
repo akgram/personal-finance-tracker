@@ -288,3 +288,65 @@ td {
 .btn-cancel:hover {
   background-color: #5a6268;
 }
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%); /* crno u belo */
+    opacity: 1;
+}
+
+.budget-container {
+  margin: 15px 0;
+}
+
+.budget-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.limit-label {
+  color: #94a3b8;
+}
+
+.progress-track {
+  background: #2d3748;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: #4f46e5;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease-out;
+}
+
+.progress-fill.over-budget {
+  background: #ef4444;
+}
+
+.budget-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.danger {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.remaining {
+  color: #10b981;
+}

@@ -3,6 +3,11 @@
     <div class="logo-container">
       <img src="logo1.png" alt="App Logo" class="auth-logo">
     </div>
+
+    <div class="user-info">
+      <span>Logged in as: <strong>{{ userEmail }}</strong></span>
+    </div>
+    
     <div class="nav-right">
       <button (click)="router.navigate(['/transactions'])" class="btn-nav-link">Transactions</button>
       <button (click)="router.navigate(['/categories'])" class="btn-nav-link">Categories</button>

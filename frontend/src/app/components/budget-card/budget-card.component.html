@@ -3,10 +3,15 @@
   <ng-container *ngIf="budget && budget.amount > 0; else noBudget">
     <div class="card-header">
       <div class="title-group">
-        <span class="title">{{ isGlobal ? 'Total Monthly Budget' : (budget.category?.name || 'Category') }}</span>
+        <span class="title">
+          {{'Total Monthly Budget'}}
+          <span class="month-label">{{ currentMonthName() }}</span>
+        </span>
         <span class="badge" [style.background-color]="getColor()">{{ percent | number:'1.0-0' }}%</span>
       </div>
-      <button class="btn-icon-edit" (click)="isBudgetModalOpen = true" title="Edit Budget">✎</button>
+      <button class="btn-create-inline" (click)="isBudgetModalOpen = true" title="Edit Budget">
+        + Increase Budget
+      </button>
     </div>
 
     <div class="values-group">
@@ -26,7 +31,13 @@
     <div class="card-footer">
       <span *ngIf="percent <= 100">Remaining: <strong>{{ (budget.amount - spent) | currency }}</strong></span>
       <span *ngIf="percent > 100" class="error-msg">Over budget by: <strong>{{ (spent - budget.amount) | currency }}</strong>!</span>
+
+      <button class="btn-delete-icon" (click)="deleteBudget()" title="Delete Budget">
+          🗑️
+      </button>
     </div>
+
+    
   </ng-container>
 
   <ng-template #noBudget>

@@ -21,6 +21,7 @@ export class Budget {
   user: User;
 
   // N budget -> 1 category
-  @ManyToOne(() => Category, (category) => category.budgets)
+  @ManyToOne(() => Category, (category) => category.budgets, 
+  { onDelete: 'CASCADE', nullable: true })
   category: Category;
 }

@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { CategoryService } from '../../services/category.service';
 import { TransactionService } from '../../services/transaction.service';
+import { BudgetService } from '../../services/budget.service';
+
 import * as CategoryActions from './category.actions';
 import { map, mergeMap, catchError, of, forkJoin } from 'rxjs';
 
@@ -10,6 +12,7 @@ export class CategoryEffects {
   private actions$ = inject(Actions);
   private categoryService = inject(CategoryService);
   private transactionService = inject(TransactionService);
+  private budgetService = inject(BudgetService);
 
   // load/read
   loadCategories$ = createEffect(() =>
@@ -18,10 +21,11 @@ export class CategoryEffects {
       mergeMap(() => 
         forkJoin({
           categories: this.categoryService.getCategories(),
-          transactions: this.transactionService.getTransactions()
+          transactions: this.transactionService.getTransactions(),
+          budgets: this.budgetService.getBudgets()
         }).pipe(
-          map(({ categories, transactions }) => 
-            CategoryActions.loadCategoriesSuccess({ categories, transactions })
+          map(({ categories, transactions, budgets }) => 
+            CategoryActions.loadCategoriesSuccess({ categories, transactions, budgets })
           ),
           catchError(() => of({ type: '[Category] Load Error' }))
         )

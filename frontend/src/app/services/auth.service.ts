@@ -19,12 +19,19 @@ export class AuthService {
       tap((res: any) => {
         if(res.access_token) {
           localStorage.setItem('token', res.access_token); // cuva se kljuc
+
+          localStorage.setItem('userEmail', email);
         }
       })
     );
   }
 
+  getUserEmail(): string | null {
+    return localStorage.getItem('userEmail');
+  }
+
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
   }
 }

@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BudgetService } from '../../services/budget.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-budget-card',
@@ -22,12 +23,20 @@ export class BudgetCardComponent implements OnChanges {
   percent: number = 0;
   isBudgetModalOpen = false;
 
-  newBudgetData = { amount: 0, month: new Date().getMonth() + 1, year: new Date().getFullYear(), categoryId: '' };
+  newBudgetData = { amount: 0, month: new Date().getMonth() + 1, year: new Date().getFullYear(), categoryId: null };
 
   constructor(private budgetService: BudgetService) {}
 
   ngOnChanges() {
     this.calculateProgress();
+  }
+
+
+  currentMonthName(): string {
+    const months = ['January', 'February', 'March', 'April', 
+                    'May', 'June', 'July', 'August', 
+                    'September', 'October', 'November', 'December'];
+    return months[new Date().getMonth()];
   }
 
   calculateProgress() {
@@ -56,7 +65,7 @@ export class BudgetCardComponent implements OnChanges {
   }
 
   createBudget() {
-    if (!this.newBudgetData.categoryId || this.newBudgetData.amount <= 0) {
+    if (this.newBudgetData.amount <= 0) {
       alert('Please fill in all fields correctly.');
       return;
     }
@@ -67,15 +76,39 @@ export class BudgetCardComponent implements OnChanges {
         this.onRefresh.emit(); // javlja dash-u za nove podatke
 
         // reset
-        this.newBudgetData = { amount: 0, month: new Date().getMonth() + 1, year: new Date().getFullYear(), categoryId: '' };
+        this.newBudgetData = { amount: 0, month: new Date().getMonth() + 1, year: new Date().getFullYear(), categoryId: null };
       },
       error: (err) => console.error('Error creating budget', err)
     });
   }
 
+  deleteBudget() {
+
+    const ids = this.budget.ids;
+
+    console.dir(this.budget);
+    if (confirm('Are you sure you want to delete this budget?')) {
+
+      // zahtevi za svaki dodati budzet za taj mesec
+      const deleteRequests = ids.map((id: number) => this.budgetService.delete(id));
+
+      forkJoin(deleteRequests).subscribe({
+        next: () => {
+          this.onRefresh.emit();
+          console.log("Delete budget success.");
+        },
+        error: (err) => {
+          console.error('Delete budget fail: ', err);
+          alert('Failed to delete budget. Please try again.');
+        }
+      });
+    }
+  }
+
   getColor(): string {
     if (this.percent > 90) return '#ff4757';
     if (this.percent > 70) return '#ffa502';
+
     return '#2ed573';
   }
   

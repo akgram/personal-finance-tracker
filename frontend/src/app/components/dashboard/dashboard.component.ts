@@ -42,7 +42,15 @@ export class DashboardComponent implements OnInit {
   isCreateModalOpen: boolean = false;
   isCategoryModalOpen: boolean = false;
 
+  userEmail: string = '';
+
   ngOnInit() {
+
+    const currentUser = this.authService.getUserEmail(); 
+    if (currentUser) {
+      this.userEmail = currentUser;
+    }
+
     this.loadDashboardOverview();
   }
 
@@ -80,12 +88,20 @@ export class DashboardComponent implements OnInit {
 
         const remainingBudget = totalPlanned - monthlySpent;
 
-        return { stats, totalPlanned, monthlySpent, remainingBudget, transactions };
+        const currentBudgets = budgets.
+          filter(b => b.month === (currentMonth + 1) && b.year === currentYear);
+
+        
+        const budgetIds = currentBudgets.map(b => b.id);
+
+
+        return { stats, totalPlanned, monthlySpent, remainingBudget, transactions, budgetIds };
       })
-    ).subscribe(({ stats, totalPlanned, monthlySpent, remainingBudget, transactions }) => {
+    ).subscribe(({ stats, totalPlanned, monthlySpent, remainingBudget, transactions, budgetIds }) => {
       this.financialStats = stats;
       
-      this.globalBudgetData = { 
+      this.globalBudgetData = {
+        ids: budgetIds,
         amount: totalPlanned, 
         spent: monthlySpent, 
         remaining: remainingBudget 

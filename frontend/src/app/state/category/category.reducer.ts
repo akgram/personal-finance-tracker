@@ -4,6 +4,7 @@ import * as CategoryActions from './category.actions';
 export interface CategoryState {
   categories: any[];
   transactions: any[];
+  budgets: any[];
   loading: boolean;
   error: any;
 }
@@ -12,23 +13,24 @@ export interface CategoryState {
 export const initialState: CategoryState = {
   categories: [],
   transactions: [],
+  budgets: [],
   loading: false,
   error: null
 };
 
 
-export const categoryReducer = createReducer(
-    initialState,
+export const categoryReducer = createReducer( initialState,
     //load
   on(CategoryActions.loadCategories, (state) => ({ 
     ...state, 
     loading: true })),
 
     //success load
-  on(CategoryActions.loadCategoriesSuccess, (state, { categories, transactions }) => ({
+  on(CategoryActions.loadCategoriesSuccess, (state, { categories, transactions, budgets }) => ({
     ...state,
     categories: categories,
     transactions: transactions,
+    budgets: budgets,
     loading: false,
     error: null
   })),
