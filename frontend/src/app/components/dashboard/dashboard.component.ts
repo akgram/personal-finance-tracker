@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -7,8 +7,11 @@ import { CategoryService } from '../../services/category.service';
 import { BudgetService } from '../../services/budget.service';
 import { FormsModule } from '@angular/forms';
 import { BudgetCardComponent } from '../budget-card/budget-card.component';
-import { zip, map, take } from 'rxjs';
+import { combineLatest, map } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
+
+import { Store } from '@ngrx/store';
+import * as BudgetActions from '../../state/budget/budget.actions';
 
 Chart.register(...registerables);
 
@@ -24,17 +27,18 @@ export class DashboardComponent implements OnInit {
   @ViewChild('myChart') chartCanvas!: ElementRef;
   chart: any;
 
+  private store = inject(Store);
+
   constructor(
     private authService: AuthService, 
     public router: Router,
     private transactionService: TransactionService,
-    private categoryService: CategoryService,
-    private budgetService: BudgetService
+    private categoryService: CategoryService
   ) {}
 
   allCategoriesList: any[] = [];
   financialStats: any = { totalBalance: 0, income: 0, expense: 0 };
-  globalBudgetData: any = { amount: 0 };
+  globalBudgetData: any = { amount: 0, spent: 0, remaining: 0, ids: [] };
   
   newTransactionData: any = { amount: 0, description: '', type: 'expense', categoryId: null };
   newCategoryData: any = { name: '', icon: '' };
@@ -44,67 +48,55 @@ export class DashboardComponent implements OnInit {
 
   userEmail: string = '';
 
-  ngOnInit() {
+  budgets$ = this.store.select((state: any) => state.budget.budgets);
 
-    const currentUser = this.authService.getUserEmail(); 
+  ngOnInit() {
+    const currentUser = this.authService.getUserEmail();
+
     if (currentUser) {
       this.userEmail = currentUser;
     }
 
-    this.loadDashboardOverview();
-  }
-
-  loadDashboardOverview() {
-    this.fetchStatsData();
+    this.store.dispatch(BudgetActions.loadBudgets());
     this.fetchCategoriesData();
-  }
 
-  fetchStatsData() {
-    zip(
+    combineLatest([
+      this.budgets$,
       this.transactionService.getStats(),
-      this.budgetService.getBudgets(),
       this.transactionService.getTransactions()
-    ).pipe(
-      take(1),
-      map(([stats, budgets, transactions]) => {
+    ]).pipe(
+      map(([budgets, stats, transactions]) => {
         const now = new Date();
-        const currentMonth = now.getMonth();
+        const currentMonth = now.getMonth() + 1;
         const currentYear = now.getFullYear();
 
-        // ukupan budzet za tekuci mesec
-        const totalPlanned = budgets
-          .filter(b => b.month === (currentMonth + 1) && b.year === currentYear)
-          .reduce((sum, b) => sum + Number(b.amount), 0);
+        const currentBudgets = budgets.filter((b: any) => 
+          Number(b.month) === currentMonth && Number(b.year) === currentYear
+        );
 
-        // potrosnja iz transakcija za tekuci mesec
+        const totalPlanned = currentBudgets.reduce((sum: number, b: any) => sum + Number(b.amount), 0);
+
         const monthlySpent = transactions
           .filter(t => {
-            const tDate = new Date(t.createdAt);
+            const tDate = new Date(t.date || t.createdAt);
             return t.type === 'expense' && 
-                  tDate.getMonth() === currentMonth && 
-                  tDate.getFullYear() === currentYear;
+                   (tDate.getMonth() + 1) === currentMonth && 
+                   tDate.getFullYear() === currentYear;
           })
           .reduce((sum, t) => sum + Number(t.amount), 0);
 
-        const remainingBudget = totalPlanned - monthlySpent;
+        const budgetIds = currentBudgets.map((b: any) => b.id);
 
-        const currentBudgets = budgets.
-          filter(b => b.month === (currentMonth + 1) && b.year === currentYear);
-
-        
-        const budgetIds = currentBudgets.map(b => b.id);
-
-
-        return { stats, totalPlanned, monthlySpent, remainingBudget, transactions, budgetIds };
+        return { stats, totalPlanned, monthlySpent, budgetIds };
       })
-    ).subscribe(({ stats, totalPlanned, monthlySpent, remainingBudget, transactions, budgetIds }) => {
+    ).subscribe(({ stats, totalPlanned, monthlySpent, budgetIds }) => {
       this.financialStats = stats;
       
       this.globalBudgetData = {
         ids: budgetIds,
         amount: totalPlanned, 
         spent: monthlySpent, 
-        remaining: remainingBudget 
+        remaining: totalPlanned - monthlySpent 
       };
 
       this.initChart();
@@ -119,7 +111,8 @@ export class DashboardComponent implements OnInit {
     }
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
-    if (this.chart) this.chart.destroy();
+    if (this.chart) 
+      this.chart.destroy();
 
     this.chart = new Chart(ctx, {
       type: 'pie',
@@ -147,28 +140,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  createTransaction() {
-    this.transactionService.create(this.newTransactionData).subscribe({
-      next: () => {
-        this.fetchStatsData();
-        this.isCreateModalOpen = false;
-        this.newTransactionData = { amount: 0, description: '', type: 'expense', categoryId: null };
-      },
-      error: (err) => console.error(err)
-    });
-  }
-
-  createCategory() {
-    this.categoryService.create(this.newCategoryData).subscribe({
-      next: () => {
-        this.fetchCategoriesData();
-        this.isCategoryModalOpen = false;
-        this.newCategoryData = { name: '', icon: '' };
-      },
-      error: (err) => console.error(err)
-    });
-  }
-
   fetchCategoriesData() {
     this.categoryService.getCategories().subscribe({
       next: (res) => this.allCategoriesList = res,
@@ -176,11 +147,16 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  fetchStatsData() {
+    this.store.dispatch(BudgetActions.loadBudgets());
+  }
+
+  onDeleteBudget(id: number) {
+    this.store.dispatch(BudgetActions.deleteBudget({ id }));
+  }
+
   onLogout() {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
-
-  openCreateForm() { this.isCreateModalOpen = true; }
-  openCategoryForm() { this.isCategoryModalOpen = true; }
 }

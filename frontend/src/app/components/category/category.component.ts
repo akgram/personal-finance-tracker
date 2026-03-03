@@ -22,8 +22,9 @@ export class CategoryComponent {
 
   groupedData$ = this.store.select((state: any) => state.category).pipe(
     map(({ categories, transactions, budgets }) => categories.map((cat: any) => {
-      const catTransactions = transactions.filter((t: any) => t.category?.id === cat.id);
-      
+      const catTransactions = transactions.filter((t: any) => t.category?.id === cat.id &&
+                              new Date(t.createdAt).getMonth() === new Date().getMonth() );
+
       const total = catTransactions.reduce((sum: number, t: any) => 
         t.type === 'income' ? sum + Number(t.amount) : sum - Number(t.amount), 0);
 
@@ -31,8 +32,8 @@ export class CategoryComponent {
         .filter((t: any) => t.type === 'expense')
         .reduce((sum: number, t: any) => sum + Number(t.amount), 0);
 
-      const foundBudget = (budgets || []).find((b: any) => b.category?.id === cat.id);
-      const budgetLimit = foundBudget ? Number(foundBudget.amount) : 0;
+      const foundBudget = (budgets || []).filter((b: any) => b.category?.id === cat.id);
+      const budgetLimit = foundBudget.reduce((sum: number, b: any) => sum + Number(b.amount || 0), 0);
       
       const percent = budgetLimit > 0 ? (spent / budgetLimit) * 100 : 0;
 

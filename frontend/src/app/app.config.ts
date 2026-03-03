@@ -8,12 +8,18 @@ import { routes } from './app.routes';
 import { categoryReducer } from './/state/category/category.reducer';
 import { CategoryEffects } from './state/category/category.effects';
 
+import { budgetReducer } from './state/budget/budget.reducer';
+import { BudgetEffects } from './state/budget/budget.effects';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes),
     provideHttpClient(),
-    provideStore({ category: categoryReducer }),
-    provideEffects([CategoryEffects])
+    provideStore({ category: categoryReducer, 
+                  budget: budgetReducer 
+                }),
+
+    provideEffects([CategoryEffects, BudgetEffects]),
   ]
 };

@@ -55,23 +55,29 @@ export class TransactionsService {
 
     async getStats(userId: number) {
         const transactions = await this.repo.find({
-        where: { user: { id: userId } },
+            where: { user: { id: userId } }
         });
 
-        return transactions.reduce(
-        (acc, t) => {
-            const amount = Number(t.amount);
-            if (t.type === 'income') {
-            acc.income += amount;
-            acc.totalBalance += amount;
-            } else {
-            acc.expense += amount;
-            acc.totalBalance -= amount;
+        const tekuciMesec = new Date().getMonth();
+        const tekucaGodina = new Date().getFullYear();
+
+        return transactions.reduce((acc, t) => {
+            const datumTransakcije = new Date(t.createdAt);
+            
+            if (datumTransakcije.getMonth() === tekuciMesec && 
+                datumTransakcije.getFullYear() === tekucaGodina) {
+                
+                const amount = Number(t.amount);
+                if (t.type.toLowerCase() === 'income') {
+                    acc.income += amount;
+                    acc.totalBalance += amount;
+                } else {
+                    acc.expense += amount;
+                    acc.totalBalance -= amount;
+                }
             }
             return acc;
-        },
-        { totalBalance: 0, income: 0, expense: 0 },
-        );
+        }, { totalBalance: 0, income: 0, expense: 0 });
     }
 
     async remove(id: number, userId: number) {

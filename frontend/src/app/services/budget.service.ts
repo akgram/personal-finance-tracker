@@ -29,7 +29,7 @@ export class BudgetService {
     }
 
     delete(id: number): Observable<any> {
-        console.log('Finalni URL koji gađam:', `${this.apiUrl}/${id}`);
+        console.log('Finalni URL koji gadjam:', `${this.apiUrl}/${id}`);
         return this.http.delete(`${this.apiUrl}/${id}`, this.getHeaders());
     }
 }
