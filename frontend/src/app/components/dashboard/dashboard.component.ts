@@ -7,7 +7,7 @@ import { CategoryService } from '../../services/category.service';
 import { BudgetService } from '../../services/budget.service';
 import { FormsModule } from '@angular/forms';
 import { BudgetCardComponent } from '../budget-card/budget-card.component';
-import { combineLatest, map } from 'rxjs';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
 
 import { Store } from '@ngrx/store';
@@ -39,7 +39,7 @@ export class DashboardComponent implements OnInit {
   allCategoriesList: any[] = [];
   financialStats: any = { totalBalance: 0, income: 0, expense: 0 };
   globalBudgetData: any = { amount: 0, spent: 0, remaining: 0, ids: [] };
-  
+
   newTransactionData: any = { amount: 0, description: '', type: 'expense', categoryId: null };
   newCategoryData: any = { name: '', icon: '' };
 
@@ -50,9 +50,47 @@ export class DashboardComponent implements OnInit {
 
   budgets$ = this.store.select((state: any) => state.budget.budgets);
 
+  months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  selectedMonth: number = new Date().getMonth() + 1;
+  selectedYear: number = new Date().getFullYear();
+
+  isCurrentPeriod: boolean = true;
+
+  private filterSubject = new BehaviorSubject({ 
+    month: new Date().getMonth() + 1, 
+    year: new Date().getFullYear() 
+  });
+
+  isCurrentPeriodCheck() {
+    const now = new Date();
+    this.isCurrentPeriod = Number(this.selectedMonth) === (now.getMonth() + 1) && Number(this.selectedYear) === now.getFullYear();
+  }
+
+  onFilterChange() {
+
+    this.isCurrentPeriodCheck();
+
+    this.filterSubject.next({ 
+      month: Number(this.selectedMonth), 
+      year: Number(this.selectedYear) 
+    });
+  }
+
+  fetchStatsData() {
+    this.store.dispatch(BudgetActions.loadBudgets());
+    this.onFilterChange();
+  }
+
+  resetToCurrentMonth() {
+    const now = new Date();
+    this.selectedMonth = now.getMonth() + 1;
+    this.selectedYear = now.getFullYear();
+    this.isCurrentPeriodCheck();
+    this.fetchStatsData();
+  }
+
   ngOnInit() {
     const currentUser = this.authService.getUserEmail();
-
     if (currentUser) {
       this.userEmail = currentUser;
     }
@@ -61,37 +99,41 @@ export class DashboardComponent implements OnInit {
     this.fetchCategoriesData();
 
     combineLatest([
+      this.filterSubject,
       this.budgets$,
-      this.transactionService.getStats(),
       this.transactionService.getTransactions()
     ]).pipe(
-      map(([budgets, stats, transactions]) => {
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1;
-        const currentYear = now.getFullYear();
-
-        const currentBudgets = budgets.filter((b: any) => 
-          Number(b.month) === currentMonth && Number(b.year) === currentYear
+      map(([filters, budgets, transactions]) => {
+        const filteredBudgets = budgets.filter((b: any) => 
+          Number(b.month) === filters.month && Number(b.year) === filters.year
         );
 
-        const totalPlanned = currentBudgets.reduce((sum: number, b: any) => sum + Number(b.amount), 0);
+        const filteredTrans = transactions.filter(t => {
+          const tDate = new Date(t.date || t.createdAt);
+          return (tDate.getMonth() + 1) === filters.month && 
+                  tDate.getFullYear() === filters.year;
+        });
 
-        const monthlySpent = transactions
-          .filter(t => {
-            const tDate = new Date(t.date || t.createdAt);
-            return t.type === 'expense' && 
-                   (tDate.getMonth() + 1) === currentMonth && 
-                   tDate.getFullYear() === currentYear;
-          })
+        const income = filteredTrans
+          .filter(t => t.type === 'income')
           .reduce((sum, t) => sum + Number(t.amount), 0);
 
-        const budgetIds = currentBudgets.map((b: any) => b.id);
+        const expense = filteredTrans
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
 
-        return { stats, totalPlanned, monthlySpent, budgetIds };
+        const totalPlanned = filteredBudgets.reduce((sum: number, b: any) => sum + Number(b.amount), 0);
+        const budgetIds = filteredBudgets.map((b: any) => b.id);
+
+        return { 
+          stats: { totalBalance: income - expense, income, expense }, 
+          totalPlanned, 
+          monthlySpent: expense, 
+          budgetIds 
+        };
       })
     ).subscribe(({ stats, totalPlanned, monthlySpent, budgetIds }) => {
       this.financialStats = stats;
-      
       this.globalBudgetData = {
         ids: budgetIds,
         amount: totalPlanned, 
@@ -99,20 +141,17 @@ export class DashboardComponent implements OnInit {
         remaining: totalPlanned - monthlySpent 
       };
 
-      this.initChart();
+      setTimeout(() => this.initChart(), 0);
     });
   }
 
   initChart() {
     if (!this.chartCanvas) return;
-    if (this.financialStats.income === 0 && this.financialStats.expense === 0) {
-       if (this.chart) this.chart.destroy();
-       return;
-    }
-
+    
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
-    if (this.chart) 
-      this.chart.destroy();
+    if (this.chart) this.chart.destroy();
+
+    if (this.financialStats.income === 0 && this.financialStats.expense === 0) return;
 
     this.chart = new Chart(ctx, {
       type: 'pie',
@@ -120,21 +159,22 @@ export class DashboardComponent implements OnInit {
         labels: ['Income', 'Expenses'],
         datasets: [{
           data: [Number(this.financialStats.income), Number(this.financialStats.expense)],
-          backgroundColor: ['#2ecc71', '#e74c3c'],
-          borderWidth: 0
+          backgroundColor: ['#10b981', '#ef4444'],
+          borderWidth: 0.5
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: {
-          padding: { bottom: 20 }
-        },
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { color: '#fff', padding: 20 }
+            labels: { color: '#94a3b8', padding: 20, font: { size: 12 } }
           }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
         }
       }
     });
@@ -147,10 +187,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  fetchStatsData() {
-    this.store.dispatch(BudgetActions.loadBudgets());
-  }
-
   onDeleteBudget(id: number) {
     this.store.dispatch(BudgetActions.deleteBudget({ id }));
   }
@@ -158,5 +194,9 @@ export class DashboardComponent implements OnInit {
   onLogout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  openAddBudgetModal() {
+    this.isCreateModalOpen = true;
   }
 }

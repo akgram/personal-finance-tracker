@@ -1,34 +1,58 @@
 <div class="dashboard-container">
   <nav class="dash-nav">
-    <div class="logo-container">
-      <img src="logo1.png" alt="App Logo" class="auth-logo">
-    </div>
+    <div class="nav-content">
+      <div class="logo-container" (click)="resetToCurrentMonth()" style="cursor: pointer;">
+        <img src="logo1.png" alt="App Logo" class="auth-logo">
+      </div>
 
-    <div class="user-info">
-      <span>Logged in as: <strong>{{ userEmail }}</strong></span>
-    </div>
-    
-    <div class="nav-right">
-      <button (click)="router.navigate(['/transactions'])" class="btn-nav-link">Transactions</button>
-      <button (click)="router.navigate(['/categories'])" class="btn-nav-link">Categories</button>
-      <button (click)="onLogout()" class="btn-logout">Logout</button>
+      <div class="user-info">
+        <span>Logged in as: <strong>{{ userEmail }}</strong></span>
+      </div>
+      
+      <div class="nav-right">
+        <button (click)="router.navigate(['/transactions'])" class="btn-nav-link">Transactions</button>
+        <button (click)="router.navigate(['/categories'])" class="btn-nav-link">Categories</button>
+        <button (click)="onLogout()" class="btn-logout">Logout</button>
+      </div>
     </div>
   </nav>
 
   <main class="dash-content">
+    <div class="filter-container">
+      <div class="filter-controls">
+        <div class="select-wrapper">
+          <label>Month</label>
+          <select [(ngModel)]="selectedMonth" (change)="onFilterChange()" class="filter-select">
+            <option *ngFor="let m of months; let i = index" [value]="i + 1">{{ m }}</option>
+          </select>
+        </div>
+
+        <div class="select-wrapper">
+          <label>Year</label>
+          <select [(ngModel)]="selectedYear" (change)="onFilterChange()" class="filter-select">
+            <option [value]="2025">2025</option>
+            <option [value]="2026">2026</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="overview-section">
       <div class="stats-cards">
-        <div class="stat-card">
+        <div class="stat-card total">
           <span class="label">Total Balance</span>
           <h2 class="value">{{ financialStats.totalBalance | currency:'USD' }}</h2>
         </div>
-        <div class="stat-card income">
-          <span class="label">Monthly Income</span>
-          <h2 class="value">+{{ financialStats.income | currency:'USD' }}</h2>
-        </div>
-        <div class="stat-card expense">
-          <span class="label">Monthly Expenses</span>
-          <h2 class="value">-{{ financialStats.expense | currency:'USD' }}</h2>
+        
+        <div class="stats-bottom-row">
+          <div class="stat-card income">
+            <span class="label">Monthly Income</span>
+            <h2 class="value">+{{ financialStats.income | currency:'USD' }}</h2>
+          </div>
+          <div class="stat-card expense">
+            <span class="label">Monthly Expenses</span>
+            <h2 class="value">-{{ financialStats.expense | currency:'USD' }}</h2>
+          </div>
         </div>
       </div>
 
@@ -36,19 +60,20 @@
         <h4>Structure of Wealth</h4>
         <canvas #myChart></canvas>
         
-        <p *ngIf="financialStats.income === 0 && financialStats.expense === 0" class="no-data">
-          No data available for the chart.
-        </p>
+        <div *ngIf="financialStats.income === 0 && financialStats.expense === 0" class="no-data-msg">
+          <p>No data available for {{ months[selectedMonth - 1] }}</p>
+        </div>
       </div>
     </div>
 
     <div class="budget-summary-container">
-       <app-budget-card
-         [budget]="globalBudgetData" 
-         [allCategories]="allCategoriesList"
-         [isGlobal]="true"
-         (onRefresh)="fetchStatsData()">
-       </app-budget-card>
+        <app-budget-card
+          [budget]="globalBudgetData" 
+          [allCategories]="allCategoriesList"
+          [isGlobal]="true"
+          (onRefresh)="fetchStatsData()"
+          [isCurrentPeriod]="isCurrentPeriod"> 
+        </app-budget-card>
     </div>
   </main>
 </div>

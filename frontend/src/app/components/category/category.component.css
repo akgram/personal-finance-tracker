@@ -249,7 +249,8 @@ td {
   width: 6px; 
 }
 ::-webkit-scrollbar-thumb { 
-  background: #334155; border-radius: 10px; 
+  background: #334155; 
+  border-radius: 10px; 
 }
 
 
@@ -272,7 +273,7 @@ td {
 .btn-save {
   background-color: #28a745;
   color: white;
-  border-color: #28a745 !important;
+  border-color: #28a745;
 }
 
 .btn-save:hover {
@@ -282,7 +283,7 @@ td {
 .btn-cancel {
   background-color: #6c757d;
   color: white;
-  border-color: #6c757d !important;
+  border-color: #6c757d;
 }
 
 .btn-cancel:hover {
@@ -298,8 +299,8 @@ td {
 }
 
 .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%); /* crno u belo */
-    opacity: 1;
+  filter: invert(1) grayscale(100%) brightness(200%); /* crno u belo */
+  opacity: 1;
 }
 
 .budget-container {

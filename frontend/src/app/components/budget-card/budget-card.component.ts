@@ -16,6 +16,7 @@ export class BudgetCardComponent implements OnChanges {
   @Input() transactions: any[] = [];
   @Input() isGlobal: boolean = false;
   @Input() allCategories: any[] = [];
+  @Input() isCurrentPeriod: boolean = false;
 
   @Output() onRefresh = new EventEmitter<void>();
 

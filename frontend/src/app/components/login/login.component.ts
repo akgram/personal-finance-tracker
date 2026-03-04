@@ -34,8 +34,11 @@ export class LoginComponent {
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        console.error('Login erroe:', err);
-        alert('Incorect data!');
+        if (err.status === 401) {
+          alert('Account not verified! Please check your email inbox.');
+        } else {
+          alert('Incorrect email or password!');
+        }
       }
     });
   }

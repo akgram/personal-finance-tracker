@@ -43,7 +43,7 @@
   <ng-template #noBudget>
   <div class="empty-budget-state">
     <p>No budget set for this period.</p>
-    <button type="button" class="btn-create-inline" (click)="isBudgetModalOpen = true">
+    <button *ngIf="isCurrentPeriod" type="button" class="btn-create-inline" (click)="isBudgetModalOpen = true">
       <span class="plus">+</span> 
       <span>Set Budget</span>
     </button>

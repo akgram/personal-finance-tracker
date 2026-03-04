@@ -17,6 +17,12 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ default: false })
+  isVerified: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  verificationToken: string | null;
+
 
   // 1 user -> N category
   @OneToMany(() => Category, (category) => category.user)
