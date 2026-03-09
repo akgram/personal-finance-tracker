@@ -17,6 +17,9 @@ export class TransactionsService {
             category: createDto.categoryId ? { id: createDto.categoryId } : undefined
         });
 
+        console.log("test");
+        console.log(transaction.category);
+
         return await this.repo.save(transaction);
     }
 
@@ -27,6 +30,7 @@ export class TransactionsService {
 
         console.log("test");
         console.log(transaction);
+        console.log(updateDto);
 
         if(!transaction) {
             throw new NotFoundException("Transaction not found");
@@ -38,8 +42,10 @@ export class TransactionsService {
         transaction.createdAt = updateDto.createdAt ?? transaction.createdAt;
 
         if(updateDto.categoryId !== undefined) {
-            transaction.category = updateDto.categoryId ? ({ id: updateDto.categoryId } as any) : undefined;
+            transaction.category = updateDto.categoryId === 0 ? null : ({ id: updateDto.categoryId } as any);
         }
+
+        // ukoliko se izbaci iz kategorije dobija id=0 pa se stavlja u General category
 
         return await this.repo.save(transaction);
     }
