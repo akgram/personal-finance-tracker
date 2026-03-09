@@ -1,9 +1,21 @@
 .dashboard-container {
   min-height: 100vh;
   background-color: #0f172a;
-  color: #f8fafc;
-  font-family: 'Inter', sans-serif;
-  background-image: radial-gradient(circle at 50% -20%, #1e293b 0%, #0f172a 100%);
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  background-color: #0a0a0c;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(61, 90, 254, 0.3) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(123, 31, 162, 0.3) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(0, 191, 165, 0.2) 0px, transparent 50%);
+  background-attachment: fixed;
+  background-size: cover;
+  
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
 }
 
 .dash-nav {
@@ -240,15 +252,22 @@
 
 .filter-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-wrap: wrap; 
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 16px;
+
   margin-bottom: 20px;
   background: rgba(30, 41, 59, 0.4);
-  padding: 12px 20px;
+  backdrop-filter: blur(10px);
+  padding: 16px 20px;
   border-radius: 12px;
   border: 1px solid rgba(51, 65, 85, 0.5);
   animation: fadeIn 0.5s ease-out;
-  width: 21.5%;
+
+  width: fit-content;
+  min-width: 300px;
+  max-width: 100%;
 }
 
 .filter-controls {

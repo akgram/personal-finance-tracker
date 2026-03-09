@@ -351,3 +351,21 @@ td {
 .remaining {
   color: #10b981;
 }
+
+.btn-delete {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+th:last-child, td:last-child {
+  text-align: center;
+}

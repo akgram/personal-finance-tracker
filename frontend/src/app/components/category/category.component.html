@@ -64,6 +64,7 @@
               <th>Description</th>
               <th>Date</th>
               <th>Amount</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -72,6 +73,10 @@
               <td>{{ t.createdAt | date:'mediumDate' }}</td>
               <td [class]="t.type === 'income' ? 'pos' : 'neg'">
                 {{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:'USD' }}
+              </td>
+              <td>
+                <button class="btn-delete" (click)="removeTransaction(t.id)">
+                  <i class="fas fa-trash"></i> </button>
               </td>
             </tr>
           </tbody>

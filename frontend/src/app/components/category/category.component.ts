@@ -7,6 +7,8 @@ import { map } from 'rxjs/operators';
 import * as CategoryActions from '../../state/category/category.actions';
 import { TransactionPickerComponent } from '../transaction-picker/transaction-picker.component';
 
+import { TransactionService } from '../../services/transaction.service';
+
 @Component({
   selector: 'app-category',
   standalone: true,
@@ -18,6 +20,7 @@ export class CategoryComponent {
 
   private store = inject(Store);
   public router = inject(Router);
+  public transactionService = inject(TransactionService);
 
 
   groupedData$ = this.store.select((state: any) => state.category).pipe(
@@ -129,5 +132,21 @@ export class CategoryComponent {
         catId: this.targetCategory.id }));
       this.isTransactionPickerOpen = false;
     }
+  }
+
+  removeTransaction(transactionId: number) {
+  const generalCategoryId = 0;
+
+  this.transactionService.update(transactionId, { categoryId: generalCategoryId })
+    .subscribe({
+      next: () => {
+        this.selectedCategory.transactions = this.selectedCategory.transactions.filter(
+          (t: any) => t.id !== transactionId
+        );
+        
+        console.log('Transaction moved to General');
+      },
+      error: (err) => console.error('Fail move transaction to general!', err)
+    });
   }
 }

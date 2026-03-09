@@ -16,6 +16,9 @@
   width: 100%;
   max-width: 400px;
   border: 1px solid #334155;
+
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .auth-header {
