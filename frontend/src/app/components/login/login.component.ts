@@ -12,15 +12,9 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  credentials = {
-    email: '',
-    password: ''
-  };
+  credentials = { email: '', password: '' };
 
-  constructor(
-    private authService: AuthService, 
-    private router: Router
-  ) {}
+  constructor( private authService: AuthService, private router: Router ) {}
 
   onLogin() {
     if (!this.credentials.email || !this.credentials.password) {
@@ -36,7 +30,8 @@ export class LoginComponent {
       error: (err) => {
         if (err.status === 401) {
           alert('Account not verified! Please check your email inbox.');
-        } else {
+        } 
+        else {
           alert('Incorrect email or password!');
         }
       }

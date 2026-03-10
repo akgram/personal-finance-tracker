@@ -5,7 +5,7 @@ import { TransactionService } from '../../services/transaction.service';
 import { BudgetService } from '../../services/budget.service';
 
 import * as CategoryActions from './category.actions';
-import { map, mergeMap, catchError, of, forkJoin } from 'rxjs';
+import { map, mergeMap, catchError, of, forkJoin, switchMap } from 'rxjs';
 
 @Injectable()
 export class CategoryEffects {
@@ -18,7 +18,7 @@ export class CategoryEffects {
   loadCategories$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CategoryActions.loadCategories),
-      mergeMap(() => 
+      switchMap(() => 
         forkJoin({
           categories: this.categoryService.getCategories(),
           transactions: this.transactionService.getTransactions(),
@@ -39,7 +39,8 @@ export class CategoryEffects {
       ofType(CategoryActions.createCategory),
       mergeMap(({ data }) =>
         this.categoryService.create(data).pipe(
-          map(() => CategoryActions.loadCategories()),
+          map(() => CategoryActions.loadCategories()
+        ),
           catchError(() => of({ type: '[Category] Create Error' }))
         )
       )
@@ -52,7 +53,8 @@ export class CategoryEffects {
       ofType(CategoryActions.updateCategory),
       mergeMap(({ id, data }) =>
         this.categoryService.update(id, data).pipe(
-          map(() => CategoryActions.loadCategories()),
+          map(() => CategoryActions.loadCategories()
+        ),
           catchError(() => of({ type: '[Category] Update Error' }))
         )
       )
@@ -65,7 +67,8 @@ export class CategoryEffects {
       ofType(CategoryActions.deleteCategory),
       mergeMap(({ id }) =>
         this.categoryService.delete(id).pipe(
-          map(() => CategoryActions.loadCategories()),
+          map(() => CategoryActions.loadCategories()
+        ),
           catchError(() => of({ type: '[Category] Delete Error' }))
         )
       )
@@ -78,7 +81,8 @@ export class CategoryEffects {
       ofType(CategoryActions.assignTransactions),
       mergeMap(({ ids, catId }) =>
         this.transactionService.assignToCategory(ids, catId).pipe(
-          map(() => CategoryActions.loadCategories()),
+          map(() => CategoryActions.loadCategories()
+        ),
           catchError(() => of({ type: '[Category] Assign Error' }))
         )
       )

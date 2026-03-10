@@ -84,7 +84,6 @@ export class BudgetCardComponent implements OnChanges {
   }
 
   deleteBudget() {
-
     const ids = this.budget.ids;
 
     console.dir(this.budget);

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction.service';
 import { CategoryService } from '../../services/category.service';
+import { Subject, take, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-transactions',
@@ -23,6 +24,8 @@ export class TransactionsComponent implements OnInit {
   isCreateModalOpen: boolean = false;
   newTransactionData: any = { amount: 0, description: '', type: 'expense', categoryId: null };
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private transactionService: TransactionService,
     private categoryService: CategoryService,
@@ -39,14 +42,24 @@ export class TransactionsComponent implements OnInit {
   }
 
   fetchTransactionsData() {
-    this.transactionService.getTransactions().subscribe({
+    this.transactionService.getTransactions()
+    .pipe(
+      takeUntil(this.destroy$),
+      take(1)
+    )
+    .subscribe({
       next: (res) => this.allTransactionsList = res,
       error: (err) => console.error(err)
     });
   }
 
   fetchCategoriesData() {
-    this.categoryService.getCategories().subscribe({
+    this.categoryService.getCategories()
+    .pipe(
+      takeUntil(this.destroy$),
+      take(1)
+    )
+    .subscribe({
       next: (res) => this.allCategoriesList = res,
       error: (err) => console.error(err)
     });
@@ -71,7 +84,9 @@ export class TransactionsComponent implements OnInit {
   }
 
   updateTransaction() {
-    if (!this.editingTransactionData) return;
+    if (!this.editingTransactionData) 
+      return;
+
     this.transactionService.update(this.editingTransactionData.id, this.editingTransactionData).subscribe({
       next: () => {
         this.fetchTransactionsData();
@@ -99,5 +114,10 @@ export class TransactionsComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/dashboard']);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

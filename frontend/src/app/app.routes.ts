@@ -12,6 +12,6 @@ export const routes: Routes = [
     { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard]},
     { path: 'categories', component: CategoryComponent, canActivate: [authGuard] },
     { path: 'transactions', component: TransactionsComponent, canActivate: [authGuard] },
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: '', redirectTo: 'login', pathMatch: 'full' }, // prvo login strana
     { path: '**', redirectTo: 'login' } // za bilo sta ide na login
 ];

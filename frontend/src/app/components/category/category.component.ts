@@ -135,18 +135,18 @@ export class CategoryComponent {
   }
 
   removeTransaction(transactionId: number) {
-  const generalCategoryId = 0;
+    const generalCategoryId = 0;
 
-  this.transactionService.update(transactionId, { categoryId: generalCategoryId })
-    .subscribe({
-      next: () => {
-        this.selectedCategory.transactions = this.selectedCategory.transactions.filter(
-          (t: any) => t.id !== transactionId
-        );
-        
-        console.log('Transaction moved to General');
-      },
-      error: (err) => console.error('Fail move transaction to general!', err)
-    });
+    this.transactionService.update(transactionId, { categoryId: generalCategoryId })
+      .subscribe({
+        next: () => {
+          this.selectedCategory.transactions = this.selectedCategory.transactions.filter(
+            (t: any) => t.id !== transactionId
+          );
+          
+          console.log('Transaction moved to General');
+        },
+        error: (err) => console.error('Fail move transaction to general!', err)
+      });
   }
 }

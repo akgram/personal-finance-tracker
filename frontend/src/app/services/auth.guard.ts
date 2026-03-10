@@ -7,7 +7,8 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   if (token) {
     return true;
-  } else {
+  } 
+  else {
     router.navigate(['/login']); // ne moze da ukuca /dashboard i samo pristupi stranici
     return false;
   }

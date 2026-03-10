@@ -24,8 +24,8 @@ export class BudgetEffects {
     addBudget$ = createEffect(() => this.actions$.pipe(
         ofType(BudgetActions.addBudget),
         mergeMap(({ budget }) => this.budgetService.create(budget).pipe(
-            // Čim servis uspešno kreira budžet, mi kažemo: "Hej, učitaj ponovo sve!"
-            map(() => BudgetActions.loadBudgets()), 
+            map(() => BudgetActions.loadBudgets()),
+
             catchError(error => {
                 console.error('Fail add:', error);
                 return of(BudgetActions.loadBudgetsFailure({ error }));
@@ -36,7 +36,8 @@ export class BudgetEffects {
     deleteBudget$ = createEffect(() => this.actions$.pipe(
         ofType(BudgetActions.deleteBudget),
         mergeMap(({ id }) => this.budgetService.delete(id).pipe(
-            map(() => BudgetActions.loadBudgets()), 
+            map(() => BudgetActions.loadBudgets()),
+
             catchError(error => {
                 console.error('Fail delete:', error);
                 return of(BudgetActions.deleteBudgetFailure({ error }));

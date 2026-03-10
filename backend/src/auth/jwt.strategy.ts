@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     super({
-      // uzimamo token iz header-a
+      // uzimamo token iz header-a kao bearer i proverava
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: secretKey,

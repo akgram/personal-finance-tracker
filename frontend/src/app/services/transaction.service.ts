@@ -37,9 +37,7 @@ export class TransactionService {
   }
 
   assignToCategory(transactionIds: number[], categoryId: number): Observable<any> {
-    return this.http.patch(
-        `${this.apiUrl}/assign-category`, 
-        { transactionIds, categoryId }, 
+    return this.http.patch(`${this.apiUrl}/assign-category`, { transactionIds, categoryId }, 
         this.getHeaders()
     );
   }

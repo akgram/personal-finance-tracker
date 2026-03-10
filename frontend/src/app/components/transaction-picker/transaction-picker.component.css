@@ -124,7 +124,6 @@ button {
   border: 1px solid #334155;
 }
 
-/* Custom scrollbar */
 .transaction-list-picker::-webkit-scrollbar { width: 6px; }
 .transaction-list-picker::-webkit-scrollbar-thumb {
   background: #334155;

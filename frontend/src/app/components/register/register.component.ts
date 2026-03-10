@@ -16,14 +16,15 @@ export class RegisterComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-
   onRegister() {
     this.authService.register(this.user).subscribe({
       next: () => {
         alert('Registration successfully!');
         this.router.navigate(['/login']);
       },
-      error: (err) => alert('Error: ' + err.error.message)
+      error: (err) => {
+        alert('Error: ' + err.error.message);
+      }
     });
   }
 

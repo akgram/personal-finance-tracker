@@ -1,23 +1,21 @@
-/* Glavna pozadina - duboka tamno plava/siva */
 .auth-wrapper {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #0f172a; /* Slate 900 */
+  background-color: #0f172a;
   background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
   font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* Kartica - Glassmorphism efekat */
 .auth-card {
-  background: #1e293b; /* Slate 800 */
+  background: #1e293b;
   padding: 2.5rem;
   border-radius: 20px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 400px;
-  border: 1px solid #334155; /* Blaga ivica da se istakne u mraku */
+  border: 1px solid #334155;
 }
 
 .auth-header {
@@ -37,7 +35,6 @@
   font-size: 0.9rem;
 }
 
-/* Input polja */
 .input-group {
   margin-bottom: 1.5rem;
 }
@@ -66,7 +63,7 @@
 
 .input-group input:focus {
   outline: none;
-  border-color: #10b981; /* Emerald Green - boja novca */
+  border-color: #10b981;
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
@@ -74,7 +71,6 @@
   color: #475569;
 }
 
-/* Dugme - Jaka zelena */
 .btn-register {
   width: 100%;
   padding: 0.9rem;
@@ -98,7 +94,6 @@
   transform: translateY(0);
 }
 
-/* Footer link */
 .auth-footer {
   text-align: center;
   margin-top: 1.5rem;

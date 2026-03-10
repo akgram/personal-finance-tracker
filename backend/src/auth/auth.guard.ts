@@ -7,6 +7,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw err || new UnauthorizedException('Token je neispravan ili niste ulogovani');
     }
-    return user;
+    return user; // samo logovani mogu dohvatiti podatke iz baze
   }
 }
